@@ -8,7 +8,7 @@ Created on Fri Mar 10 11:25:25 2017
 
 import numpy as np
 
-cdef extern void TV1D_denoise(double* arr, double* output, const int width, const double lambd)
+cdef extern int tautString_TV1(double *y,double lambd,double *x,int n)
 
 def solve(double[:, :] arr, double[:] lambdas):
     cdef int i
@@ -18,7 +18,7 @@ def solve(double[:, :] arr, double[:] lambdas):
     
     if width > 0:     
         for i in range(height):
-            TV1D_denoise(&arr[i, 0], &output[i, 0], width, lambdas[i])
+            tautString_TV1(&arr[i, 0], lambdas[i], &output[i, 0], width)
     
     return np.asarray(output)
 
