@@ -5,7 +5,7 @@ from Cython.Distutils import build_ext
 setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules = [Extension("tv_l1", 
-                             sources=['tv_l1.pyx', 'condat_tv_l1.c'])]
+                             sources=['tv_l1.pyx', 'tautstring.c'])]
 )
 
     

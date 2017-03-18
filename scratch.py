@@ -28,14 +28,15 @@ def run(lambd=1):
 def quad_solve(ys, lambd):
     xs = cp.Variable(len(ys))
     
-    loss = 0.5*cp.sum_entries(cp.square(ys - xs)) + lambd*cp.norm1(cp.diff(xs)) + lambd*cp.norm1(xs[0])
+    loss = 0.5*cp.sum_entries(cp.square(ys - xs)) + lambd*cp.norm1(cp.diff(xs)) + lambd*cp.norm1(xs[-1])
     cp.Problem(cp.Minimize(loss)).solve()
     
     return xs.value.A[:, 0]
 
-def example_tube(n=10, lambd=5):
+def example_tube(lambd=1):
     sp.random.seed(0)
-    ys = 1.2**sp.arange(n)
+    ys = sp.array([-1, -3, -2], dtype=float)
+    n = len(ys)
     rs = sp.cumsum(ys)
     
     tube_mid = sp.hstack([[0], rs])
@@ -49,21 +50,19 @@ def example_tube(n=10, lambd=5):
     top.fill_between(sp.arange(n+1), tube_lower, tube_upper, alpha=0.3)
     top.set_xlim(0, n)
     
-    xs = tv_l1.solve(ys[None, ::-1].copy(), sp.array([lambd], dtype=float))[0, ::-1]
-    offset = sp.sum(ys) - sp.sum(xs)
-    top.plot(sp.hstack([[offset], sp.cumsum(xs) + offset]))
+    xs = tv_l1.solve(ys[None, :].copy(), sp.array([lambd], dtype=float))[0]
+    top.plot(sp.hstack([[0], sp.cumsum(xs)]))
     
     bot.plot(sp.hstack([[sp.nan], ys]))
     bot.plot(sp.hstack([[sp.nan], xs]))
     
     exact = quad_solve(ys, lambd)
-    exact_offset = sp.sum(ys) - sp.sum(exact)
-    top.plot(sp.hstack([[exact_offset], sp.cumsum(exact) + exact_offset]))
+    top.plot(sp.hstack([[0], sp.cumsum(exact)]))
     
     bot.plot(sp.hstack([[sp.nan], exact]))
     
     top.legend(['input', 'fast', 'quad'], loc='top-left')
     
     
-example_tube()
+example_tube(5)
     
