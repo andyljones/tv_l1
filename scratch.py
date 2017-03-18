@@ -49,46 +49,44 @@ def tautstring(y, lambd):
     debug = []
 #    import pdb; pdb.set_trace()
     while i < N:
-        last = (i == N-1)
-        lambd_hat = 0 if last else lambd
+        main = (i < N-1)
+        lambd_hat = lambd if main else 0
 
         debug.append({k: v for k, v in locals().items() if sp.isscalar(v)})
         
         mn_height += mn - y[i]
-        if +lambd_hat < mn_height:
+        mx_height += mx - y[i]
+
+        if  mn_height > +lambd_hat:
             i = mn_break + 1
             x[last_break+1:mn_break+1] = mn
             last_break = mn_break
             mn, mx = y[i], y[i] + 2*lambd
-            mn_height, mx_height = (-lambd, -lambd) if last else (-lambd, +lambd)
+            mn_height, mx_height = (-lambd, +lambd) if main else (-lambd, -lambd)
             mn_break, mx_break = i, i
-            if not last:
-                i += 1
-            continue
-    
-        mx_height += mx - y[i]
-        if -lambd_hat > mx_height:
+            if main:
+                i += 1    
+        elif mx_height < -lambd_hat:
             i = mx_break + 1
             x[last_break+1:mx_break+1] = mx
             last_break = mx_break
             mn, mx = y[i] - 2*lambd, y[i]
-            mn_height, mx_height = (+lambd, +lambd) if last else (-lambd, +lambd)
+            mn_height, mx_height = (-lambd, +lambd) if main else (+lambd, +lambd)
             mn_break, mx_break = i, i
-            if not last:
+            if main:
                 i += 1
-            continue
+        else:
+            if mx_height > +lambd_hat:
+                mx += (+lambd_hat - mx_height)/(i - last_break)
+                mx_height = +lambd_hat
+                mx_break = i
+                
+            if mn_height < -lambd_hat:
+                mn += (-lambd_hat - mn_height)/(i - last_break)
+                mn_height = -lambd_hat
+                mn_break = i
             
-        if mx_height > +lambd_hat:
-            mx += (+lambd_hat - mx_height)/(i - last_break)
-            mx_height = +lambd_hat
-            mx_break = i
-            
-        if mn_height < -lambd_hat:
-            mn += (-lambd_hat - mn_height)/(i - last_break)
-            mn_height = -lambd_hat
-            mn_break = i
-            
-        i += 1
+            i += 1
     
     
     debug.append({k: v for k, v in locals().items() if sp.isscalar(v)})
@@ -103,7 +101,8 @@ def tautstring(y, lambd):
 
 def example_tube(lambd=1):
     sp.random.seed(0)
-    ys = sp.array([-1, -3, -2], dtype=float)
+#    ys = sp.array([-1, -3, -2], dtype=float)
+    ys = sp.random.normal(size=(10,))
     n = len(ys)
     rs = sp.cumsum(ys)
     
@@ -132,5 +131,5 @@ def example_tube(lambd=1):
     top.legend(['input', 'fast', 'quad'])
     
     
-example_tube(.1)
+example_tube(.5)
     
