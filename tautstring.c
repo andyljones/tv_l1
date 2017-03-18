@@ -127,25 +127,22 @@ int tautString_TV1(double *y,double lambda,double *x,int n) {
     
         /* Check for ceiling violation: tube ceiling at current point is below proyection of minorant slope */
         /* Majorant is 0 at this point */   
-        if ( IS_POSITIVE(mnHeight) ) { // 0 < mnHeight
-            #ifdef DEBUG
-                fprintf(DEBUG_FILE,"ENDING CEILING VIOLATION i = %d, mxVal = %f, mnHeight = %f, mxBreak = %d, mnBreak = %d, lastBreak = %d\n",i,0.0,mnHeight,mxBreak,mnBreak,lastBreak); fflush(DEBUG_FILE);
-            #endif
-            /* Break segment at last minorant breaking point */
-            i = mnBreak + 1;
-            /* Build valid segment up to this point using the minorant slope */
-            for ( j = lastBreak+1 ; j <= mnBreak ; j++ )
-                x[j] = mn;
-            /* Start new segment after the break */
-            lastBreak = mnBreak;
-            /* Go back to main loop, starting a new segment */
-            /* We do not precompute the first point of the new segment here, as it might be n-1 and this leads to issues */
-            mn = y[i]; 
-            mx = lambda2+y[i];
-            mxHeight = mnHeight = minuslambda;
-            mnBreak = mxBreak = i;
-            continue;
-        }
+//        if ( IS_POSITIVE(mnHeight) ) { // 0 < mnHeight
+//            /* Break segment at last minorant breaking point */
+//            i = mnBreak + 1;
+//            /* Build valid segment up to this point using the minorant slope */
+//            for ( j = lastBreak+1 ; j <= mnBreak ; j++ )
+//                x[j] = mn;
+//            /* Start new segment after the break */
+//            lastBreak = mnBreak;
+//            /* Go back to main loop, starting a new segment */
+//            /* We do not precompute the first point of the new segment here, as it might be n-1 and this leads to issues */
+//            mn = y[i]; 
+//            mx = lambda2+y[i];
+//            mxHeight = mnHeight = minuslambda;
+//            mnBreak = mxBreak = i;
+//            continue;
+//        }
         
         /* Update height of minorant slope w.r.t. tube center */
         /* This takes into account both the slope of the minorant and the change in the tube center */
@@ -153,37 +150,31 @@ int tautString_TV1(double *y,double lambda,double *x,int n) {
         
         /* Check for minorant violation: minorant at current point is above proyection of majorant slope */
         /* Minorant is 0 at this point */
-        if ( IS_NEGATIVE(mxHeight) ) { // 0 > mxHeight
-            #ifdef DEBUG
-                fprintf(DEBUG_FILE,"ENDING FLOOR VIOLATION i = %d, mnVal = %f, mxHeight = %f, mxBreak = %d, mnBreak = %d, lastBreak = %d\n",i,0.0,mxHeight,mxBreak,mnBreak,lastBreak); fflush(DEBUG_FILE);
-            #endif
-            /* If violated, break segment at last majorant breaking point */
-            i = mxBreak + 1;
-            /* Build valid segment up to this point using the majorant slope */
-            for ( j = lastBreak+1 ; j <= mxBreak ; j++ )
-                x[j] = mx;
-            /* Start new segment after the break*/
-            lastBreak = mxBreak;
-            /* Go back to main loop, starting a new segment */
-            /* We do not precompute the first point of the new segment here, as it might be n-1 and this leads to issues */
-            mx = y[i]; 
-            mn = minuslambda2+y[i];
-            mxHeight = mnHeight = lambda;
-            mnBreak = mxBreak = i;
-            continue;
-        }
+//        if ( IS_NEGATIVE(mxHeight) ) { // 0 > mxHeight
+//            /* If violated, break segment at last majorant breaking point */
+//            i = mxBreak + 1;
+//            /* Build valid segment up to this point using the majorant slope */
+//            for ( j = lastBreak+1 ; j <= mxBreak ; j++ )
+//                x[j] = mx;
+//            /* Start new segment after the break*/
+//            lastBreak = mxBreak;
+//            /* Go back to main loop, starting a new segment */
+//            /* We do not precompute the first point of the new segment here, as it might be n-1 and this leads to issues */
+//            mx = y[i]; 
+//            mn = minuslambda2+y[i];
+//            mxHeight = mnHeight = lambda;
+//            mnBreak = mxBreak = i;
+//            continue;
+//        }
         
         /* No violations at this point */
         
         /* Check if proyected minorant height is under actual minorant */
-        if ( mnHeight <= 0 ) {
-            /* Update minorant slope */
-            mn += ( - mnHeight ) / ( i - lastBreak );
-        }
+//        if ( mnHeight <= 0 ) {
+//            /* Update minorant slope */
+//            mn += ( - mnHeight ) / ( i - lastBreak );
+//        }
 
-        #ifdef DEBUG
-            fprintf(DEBUG_FILE,"i = %d, mx = %.3f, mn = %.3f, mxHeight = %.3f, mnHeight = %.3f, mxBreak = %d, mnBreak = %d, lastBreak = %d\n",i,mx,mn,mxHeight,mnHeight,mxBreak,mnBreak,lastBreak); fflush(DEBUG_FILE);
-        #endif
         
         /* At this point: we are finished validating last segment! */
         i++;
