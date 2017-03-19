@@ -7,9 +7,11 @@ Created on Fri Mar 10 11:25:25 2017
 """
 
 import numpy as np
+cimport cython
 
-cdef extern void johnson(double *y, double *beta, int n, double lam)
+cdef extern void johnson(double *y, double *beta, int n, double lam) nogil
 
+@cython.boundscheck(False)
 def solve(double[:, :] y, double[:] lambdas):
     """For each row $y_i$ and $\lambd_i$, finds the $\beta_i$ which minimizes
     
@@ -23,11 +25,13 @@ def solve(double[:, :] y, double[:] lambdas):
     """
     
     cdef int i
-    cdef double[:,  :] y_rev = y[:, ::-1].copy()
-    cdef double[:, :] beta = np.empty_like(y)
+    cdef int n = y.shape[1]
+    cdef double[:, :] y_rev = y[:, ::-1].copy()
+    cdef double[:, :] beta = y.copy()
     
-    for i in range(y.shape[0]):
-        johnson(&y_rev[i, 0], &beta[i, 0], y.shape[1], lambdas[i])
+    with nogil:
+        for i in range(y.shape[0]):
+            johnson(&y_rev[i, 0], &beta[i, 0], n, lambdas[i])
     
     return np.asarray(beta)[:, ::-1]
 

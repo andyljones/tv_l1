@@ -34,10 +34,9 @@ def plot_example(y, lambd):
     bot.set_xlim(0, n)
     bot.set_ylim(y.min()-1, y.max()+1)
     bot.step(sp.arange(n+1), sp.hstack([[sp.nan], y]), label='input')
-    bot.step(sp.arange(n+1), sp.hstack([[sp.nan], quad]), label='quad', marker='o')
-    bot.step(sp.arange(n+1), sp.hstack([[sp.nan], taut]), label='taut')
-
-#plot_example(**generate_example())
-y = sp.array([-2, 2, 2])
-lambd = 1
-plot_example(y, lambd)
+    bot.step(sp.arange(n+1), sp.hstack([[sp.nan], quad]), label='quad opt soln', marker='o')
+    bot.step(sp.arange(n+1), sp.hstack([[sp.nan], taut]), label='johnson soln')
+    bot.legend()
+    
+#example = generate_example()
+#plot_example(**example)
