@@ -9,6 +9,8 @@ Created on Fri Mar 10 11:25:25 2017
 import numpy as np
 
 cdef extern int tautString_TV1(double *y,double lambd,double *x,int n)
+cdef extern void prox_dp(double *y, double lam, double *beta, int n)
+
 
 def solve(double[:, :] arr, double[:] lambdas):
     cdef int i
@@ -18,7 +20,7 @@ def solve(double[:, :] arr, double[:] lambdas):
     
     if width > 0:     
         for i in range(height):
-            tautString_TV1(&arr[i, 0], lambdas[i], &output[i, 0], width)
+            prox_dp(&arr[i, 0], lambdas[i], &output[i, 0], width)
     
     return np.asarray(output)
 
