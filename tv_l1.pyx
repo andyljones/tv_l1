@@ -9,7 +9,7 @@ Created on Fri Mar 10 11:25:25 2017
 import numpy as np
 cimport cython
 
-cdef extern void johnson(double *y, double *beta, int n, double lam) nogil
+cdef extern void johnson(double *y, double *beta, int n, double lam)
 
 @cython.boundscheck(False)
 def solve(double[:, :] y, double[:] lambdas):
@@ -29,9 +29,8 @@ def solve(double[:, :] y, double[:] lambdas):
     cdef double[:, :] y_rev = y[:, ::-1].copy()
     cdef double[:, :] beta = y.copy()
     
-    with nogil:
-        for i in range(y.shape[0]):
-            johnson(&y_rev[i, 0], &beta[i, 0], n, lambdas[i])
+    for i in range(y.shape[0]):
+        johnson(&y_rev[i, 0], &beta[i, 0], n, lambdas[i])
     
     return np.asarray(beta)[:, ::-1]
 
