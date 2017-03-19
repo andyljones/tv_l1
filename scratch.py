@@ -15,8 +15,8 @@ import pandas as pd
 def quad_solve(y, lambd):
     x = cp.Variable(len(y))
     
-    loss = 0.5*cp.sum_entries(cp.square(y - x)) + lambd*cp.norm1(cp.diff(x)) + lambd*cp.norm1(x[-1])
-    cp.Problem(cp.Minimize(loss)).solve()
+    loss = 0.5*cp.sum_entries(cp.square(y - x)) + lambd*cp.norm1(cp.diff(x))
+    cp.Problem(cp.Minimize(loss), [x[0] == y[0]]).solve()
     
     return x.value.A[:, 0]
     
@@ -30,23 +30,9 @@ def plot_example(y, lambd):
     taut = tv_l1.solve(y[None, :].astype(float), sp.array([lambd], dtype=float))[0]
     
     n = len(y)
-    r = sp.cumsum(y)
-    
-    tube_mid = sp.hstack([[0], r])
-    tube_lower = tube_mid.copy()
-    tube_lower[1:] -= lambd
-    tube_upper = tube_mid.copy()
-    tube_upper[1:] += lambd
-
-    fig, (top, bot) = plt.subplots(2, sharex=True)
-
-    top.fill_between(sp.arange(n+1), tube_lower, tube_upper, alpha=0.3)    
-    top.plot(tube_mid, label='input')
-    top.plot(sp.hstack([[0], sp.cumsum(quad)]), label='quad', marker='o')
-    top.plot(sp.hstack([[0], sp.cumsum(taut)]), label='taut')
-    top.set_xlim(0, n)
-    top.legend(loc='upper left')
-    
+    fig, bot = plt.subplots(1, sharex=True)    
+    bot.set_xlim(0, n)
+    bot.set_ylim(y.min()-1, y.max()+1)
     bot.step(sp.arange(n+1), sp.hstack([[sp.nan], y]), label='input')
     bot.step(sp.arange(n+1), sp.hstack([[sp.nan], quad]), label='quad', marker='o')
     bot.step(sp.arange(n+1), sp.hstack([[sp.nan], taut]), label='taut')

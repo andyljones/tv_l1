@@ -1,6 +1,10 @@
 #include <stdlib.h>
 
 void johnson(double *y, double *beta, int n, double lam) {
+    // This is an adaptation of Johnson's 2012 paper 'A Dynamic Programming Algorithm for the 
+    // Fused Lasso and L 0-Segmentation'. Most of it was originally written by Ryan Tibshirani,
+    // with the only difference being that beta[-1] is fixed to have the same value as y[-1].
+
     // Take care of a few trivial cases
     if (n==0) return;
     if (n==1 || lam==0) {
@@ -81,7 +85,7 @@ void johnson(double *y, double *beta, int n, double lam) {
         blast = -lam+y[k+1];
     }
 
-    beta[n-1] = 0;
+    beta[n-1] = y[n-1];
 
     // Compute the rest of the coefficients, by the
     // back-pointers
