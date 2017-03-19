@@ -29,7 +29,7 @@ def run(lambd=1):
 def quad_solve(y, lambd):
     x = cp.Variable(len(y))
     
-    loss = 0.5*cp.sum_entries(cp.square(y - x)) + lambd*cp.norm1(cp.diff(x))#ß + lambd*cp.norm1(x[-1])
+    loss = 0.5*cp.sum_entries(cp.square(y - x)) + lambd*cp.norm1(cp.diff(x)) + lambd*cp.norm1(x[-1])
     cp.Problem(cp.Minimize(loss)).solve()
     
     return x.value.A[:, 0]
@@ -97,6 +97,7 @@ def tautstring(y, lambd):
     return x, pd.DataFrame(debug)
             
 def dyn_prog(y, lambd):
+    y = sp.hstack([y, sp.nan])
     N = len(y)
     if N == 0:
         return sp.array([])
@@ -132,7 +133,7 @@ def dyn_prog(y, lambd):
         
         # Compute negative knot
         a_lo, b_lo = a_first, b_first
-        for lo in range(l, r+1):
+        for lo in range(l, r+1): # different from C version due to post-increment op
             print('lo', lo)
             if (+a_lo*x[lo]+b_lo > -lambd):
                 l = lo-1
@@ -147,7 +148,7 @@ def dyn_prog(y, lambd):
 
         # Compute positive knot
         a_hi, b_hi = a_last, b_last
-        for hi in range(r, l-1, -1):
+        for hi in range(r, l-1, -1): # different from C version due to post-increment op
             print('hi', hi)
             if (-a_hi*x[hi]-b_hi < +lambd):
                 r = hi+1
@@ -160,6 +161,7 @@ def dyn_prog(y, lambd):
         print('r', r)
         x[r] = t_p[k]
 
+        # Update a, b
         a[l], a[r] = a_lo, a_hi
         b[l], b[r] = b_lo+lambd, b_hi+lambd
         
@@ -167,16 +169,8 @@ def dyn_prog(y, lambd):
         b_first, b_last = -y[k+1]-lambd, +y[k+1]-lambd
 
     debug.append({k: v for k, v in locals().items() if sp.isscalar(v)})
-        
-
-    # Last coefficient
-    a_lo, b_lo = a_first, b_first
-    for lo in range(l, r+1):
-        if (+a_lo*x[lo]+b_lo > 0):
-            break
-        a_lo += a[lo]
-        b_lo += b[lo]
-    beta[N-1] = -b_lo/(+a_lo)
+    
+    beta[N-1] = 0
 
     # Rest of the coeffs
     for k in range(N-2, -1, -1):
@@ -187,14 +181,14 @@ def dyn_prog(y, lambd):
         else:
             beta[k] = beta[k+1]
 
-    return beta, pd.DataFrame(debug)
+    return beta[:-1], pd.DataFrame(debug)
 
         
     
 def generate_example():
     n = sp.random.randint(3, 20)
     return {'y': sp.random.normal(scale=1, size=(n,)),
-            'lambd': sp.random.uniform(.1, 5)}
+            'lambd': sp.random.uniform(.1, 2)}
     
 def test_example(y, lambd):
     quad = quad_solve(y, lambd)
@@ -230,7 +224,7 @@ def plot_example(y, lambd):
     bot.step(sp.arange(n+1), sp.hstack([[sp.nan], quad]), label='quad', marker='o')
     bot.step(sp.arange(n+1), sp.hstack([[sp.nan], taut]), label='taut')
 
-plot_example(**generate_example())
-#y = sp.array([-2, 2, 2])
-#lambd = 1
-#plot_example(y, lambd)
+#plot_example(**generate_example())
+y = sp.array([-2, 2, 2])
+lambd = 1
+plot_example(y, lambd)
